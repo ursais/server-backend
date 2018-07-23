@@ -16,7 +16,7 @@
     'external_dependencies': {
         'python': [
             'sqlalchemy',
-            'MySQLdb',
+            'mysqlclient',
         ],
     },
     'demo': [
