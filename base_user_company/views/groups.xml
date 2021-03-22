@@ -1,0 +1,15 @@
+<!-- Copyright 2014 ABF OSIELL <http://osiell.com>
+     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+ -->
+<odoo>
+    <record id="view_res_groups_form_inherit" model="ir.ui.view">
+        <field name="name">Groups: add Company</field>
+        <field name="model">res.groups</field>
+        <field name="inherit_id" ref="base.view_groups_form" />
+        <field name="arch" type="xml">
+            <field name="share" position="after">
+                <field name="company_id" />
+            </field>
+        </field>
+    </record>
+</odoo>
