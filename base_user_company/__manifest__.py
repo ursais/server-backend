@@ -17,8 +17,9 @@
         #"data/ir_module_category.xml",
         #"views/role.xml",
         #"views/user.xml",
-        "security/groups_multi_company.xml",
-        "views/groups.xml",
+
+        #"security/groups_multi_company.xml",
+        #"views/groups.xml",
     ],
     "installable": True,
 }
