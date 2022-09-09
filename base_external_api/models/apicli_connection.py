@@ -181,6 +181,9 @@ class ApicliConnection(models.Model):
                 verb,
                 payload if type(payload) is str else pprint.pformat(payload, indent=1),
             )
+            # the line below was added after
+            # catching an error with a non latin-1 char
+            request_data = request_data.encode("utf-8")
             response = requests.request(
                 verb,
                 request_url,
