@@ -1,4 +1,0 @@
-sqlalchemy
-radicale<3.0.0
-mysqlclient==2.0.1
-pymssql<=2.1.5
