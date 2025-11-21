@@ -116,14 +116,16 @@ class BaseExternalDbsource(models.Model):
         """
 
         method = self._get_adapter_method("connection_open")
+        connection = None
         try:
             connection = method()
             yield connection
         finally:
-            try:
-                self.connection_close(connection)
-            except Exception:
-                _logger.exception("Connection close failure.")
+            if connection:
+                try:
+                    self.connection_close(connection)
+                except Exception:
+                    _logger.exception("Connection close failure.")
 
     def execute(self, query=None, execute_params=None, metadata=False, **kwargs):
         """Executes a query and returns a list of rows.

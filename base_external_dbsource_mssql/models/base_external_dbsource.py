@@ -23,7 +23,7 @@ class BaseExternalDbsource(models.Model):
         ondelete={"mssql_alchemy": "cascade", "mssql_pyodbc": "cascade"},
     )
     PWD_STRING_MSSQL_ALCHEMY = "Password=%s;"
-    PWD_STRING_MSSQL_PYODBC = "Password=%s;"
+    PWD_STRING_MSSQL_PYODBC = "PWD=%s;"
 
     def connection_close_mssql_alchemy(self, connection):
         return connection.close()
