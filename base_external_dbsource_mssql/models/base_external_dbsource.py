@@ -17,43 +17,40 @@ class BaseExternalDbsource(models.Model):
 
     connector = fields.Selection(
         selection_add=[
-            ("mssql_alchemy", "Microsoft SQL Server (SQL Alchemy)"),
-            ("mssql_pyodbc", "Microsoft SQL Server (PyODBC)"),
+            ("mssql", "Microsoft SQL Server"),
         ],
-        ondelete={"mssql_alchemy": "cascade", "mssql_pyodbc": "cascade"},
+        ondelete={"mssql": "cascade"},
     )
-    PWD_STRING_MSSQL_ALCHEMY = "Password=%s;"
-    PWD_STRING_MSSQL_PYODBC = "Password=%s;"
+    mssql_type = fields.Selection(
+        selection=[
+            ("alchemy", "SQLAlchemy"),
+            ("pyodbc", "pyodbc"),
+        ],
+        string="MSSQL Connector Type",
+        default="alchemy",
+    )
+    PWD_STRING_MSSQL = "Password=%s;"
 
-    def connection_close_mssql_alchemy(self, connection):
+    def connection_close_mssql(self, connection):
         return connection.close()
 
-    def connection_close_mssql_pyodbc(self, connection):
-        return connection.close()
-
-    def connection_open_mssql_alchemy(self):
+    def connection_open_mssql(self):
         return self._connection_open_mssql()
 
-    def connection_open_mssql_pyodbc(self):
-        return self._connection_open_mssql()
-
-    def execute_mssql_alchemy(self, sqlquery, sqlparams, metadata):
-        return self._execute_mssql(sqlquery, sqlparams, metadata)
-
-    def execute_mssql_pyodbc(self, sqlquery, sqlparams, metadata):
+    def execute_mssql(self, sqlquery, sqlparams, metadata):
         return self._execute_mssql(sqlquery, sqlparams, metadata)
 
     def _connection_open_mssql(self):
-        if self.connector == "mssql_pyodbc":
+        if self.mssql_type == "pyodbc":
             return pyodbc.connect(self.conn_string_full)
-        else:  # mssql-alchemy
+        else:  # alchemy
             return sqlalchemy.create_engine(self.conn_string_full).connect()
 
     def _execute_mssql(self, sqlquery, sqlparams, metadata):
         rows, cols = list(), list()
         for record in self:
             with record.connection_open() as connection:
-                if record.connector == "mssql_pyodbc":
+                if record.mssql_type == "pyodbc":
                     cursor = connection.cursor()
                     if sqlparams is None:
                         cursor.execute(sqlquery)
