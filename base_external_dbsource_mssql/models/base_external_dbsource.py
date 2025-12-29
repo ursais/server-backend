@@ -4,6 +4,7 @@
 # this is needed to generate connection string
 import pymssql
 import sqlalchemy
+from urllib.parse import quote_plus
 
 from odoo import fields, models
 
@@ -30,7 +31,17 @@ class BaseExternalDbsource(models.Model):
         return self._execute_mssql(sqlquery, sqlparams, metadata)
 
     def _connection_open_mssql(self):
-        return sqlalchemy.create_engine(self.conn_string_full).connect()
+        conn_string = self.conn_string_full
+        # Check if it's an ODBC connection string (starts with DRIVER=)
+        if conn_string.strip().upper().startswith("DRIVER="):
+            # Convert ODBC string to SQLAlchemy URL format using pyodbc
+            # Format: mssql+pyodbc:///?odbc_connect=<encoded_connection_string>
+            encoded_conn = quote_plus(conn_string)
+            sqlalchemy_url = f"mssql+pyodbc:///?odbc_connect={encoded_conn}"
+        else:
+            # Use the connection string as-is (should be mssql+pymssql:// format)
+            sqlalchemy_url = conn_string
+        return sqlalchemy.create_engine(sqlalchemy_url).connect()
 
     def _execute_mssql(self, sqlquery, sqlparams, metadata):
         rows, cols = list(), list()
