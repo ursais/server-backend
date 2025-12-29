@@ -47,10 +47,25 @@ class BaseExternalDbsource(models.Model):
         rows, cols = list(), list()
         for record in self:
             with record.connection_open() as connection:
+                # Use exec_driver_sql for direct driver-level execution
+                # This handles positional parameters (tuples) correctly with pyodbc
                 if sqlparams is None:
-                    cur = connection.execute(sqlquery)
+                    cur = connection.exec_driver_sql(sqlquery)
                 else:
-                    cur = connection.execute(sqlquery, sqlparams)
+                    # Convert tuple/list to tuple for exec_driver_sql
+                    if isinstance(sqlparams, (tuple, list)):
+                        cur = connection.exec_driver_sql(sqlquery, sqlparams)
+                    elif isinstance(sqlparams, dict):
+                        # For dict parameters, convert to tuple in order
+                        # This assumes the query uses ? placeholders
+                        # We'll need to extract values in order
+                        # Note: This is a limitation - dict params need ordered values
+                        params_tuple = tuple(sqlparams.values())
+                        cur = connection.exec_driver_sql(sqlquery, params_tuple)
+                    else:
+                        # Single value
+                        cur = connection.exec_driver_sql(sqlquery, (sqlparams,))
+                
                 if metadata:
                     cols = list(cur.keys())
                 # If the query doesn't return rows, trying to get them anyway
